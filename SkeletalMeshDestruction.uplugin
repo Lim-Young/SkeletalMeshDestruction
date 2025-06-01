@@ -1,0 +1,29 @@
+﻿{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "SkeletalMeshDestruction",
+	"Description": "Skeletal Mesh Degradation & Dismemberment System",
+	"Category": "Other",
+	"CreatedBy": "Lim Young",
+	"CreatedByURL": "https://github.com/Lim-Young",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "SkeletalMeshDestruction",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "SkeletalMerging",
+			"Enabled": true
+		}
+	]
+}

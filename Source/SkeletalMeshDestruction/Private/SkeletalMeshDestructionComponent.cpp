@@ -3,6 +3,9 @@
 
 #include "SkeletalMeshDestructionComponent.h"
 
+#include "DismembermentLimbActor.h"
+#include "SkeletalMeshDestructionSubsystem.h"
+
 
 // Sets default values for this component's properties
 USkeletalMeshDestructionComponent::USkeletalMeshDestructionComponent()
@@ -251,5 +254,66 @@ bool USkeletalMeshDestructionComponent::DegradeSkeletalMesh(const FName& BoneNam
 	}
 
 	CombineSkeletalMesh();
+	return true;
+}
+
+bool USkeletalMeshDestructionComponent::ApplyDismemberment(const FName& BoneName, const FVector& ImpactDirection,
+                                                           const float ImpactForce,
+                                                           const FVector& AngularImpulseDegrees,
+                                                           const ELimbSpace LimbSpace, const bool bUseWorldScale)
+{
+	if (!IsValid(DrivenSkeletalMeshComponent))
+	{
+		return false;
+	}
+
+	if (!IsValid(DrivenSkeletalMeshComponent->GetSkeletalMeshAsset()))
+	{
+		return false;
+	}
+
+	if (!SkeletalMeshDestructionConfig.bUseDismemberment)
+	{
+		return false;
+	}
+
+	if (!SkeletalMeshDestructionConfig.DismembermentConfigs.Contains(BoneName))
+	{
+		return false;
+	}
+
+	if (!SkeletalMeshDestructionConfig.DismembermentConfigs[BoneName].Valid())
+	{
+		return false;
+	}
+
+	FTransform BoneTransform = DrivenSkeletalMeshComponent->GetBoneTransform(BoneName);
+	DrivenSkeletalMeshComponent->HideBoneByName(BoneName, PBO_Term);
+
+	ADismembermentLimbActor* LimbActor = SkeletalMeshDestructionSubsystem->GetDismembermentLimbActor(BoneTransform);
+	FVector FinalImpactDirection;
+	switch (LimbSpace)
+	{
+	case ELimbSpace::WorldSpace:
+		FinalImpactDirection = ImpactDirection;
+		break;
+	case ELimbSpace::BoneSpace:
+		FinalImpactDirection = BoneTransform.TransformVector(ImpactDirection);
+		break;
+	default:
+		checkNoEntry();
+		break;
+	}
+
+	if (bUseWorldScale)
+	{
+		BoneTransform.SetScale3D(DrivenSkeletalMeshComponent->GetComponentScale());
+	}
+
+	LimbActor->ReInitializeLimb(BoneTransform,
+	                            SkeletalMeshDestructionConfig.DismembermentConfigs[BoneName].
+	                            GetRandomDismembermentMesh(),
+	                            SkeletalMeshDestructionConfig.DismembermentLimbCollisionProfile.Name);
+	LimbActor->AddImpulse(FinalImpactDirection, ImpactForce, AngularImpulseDegrees);
 	return true;
 }

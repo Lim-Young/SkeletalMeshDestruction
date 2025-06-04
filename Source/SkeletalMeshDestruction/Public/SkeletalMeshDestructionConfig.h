@@ -42,11 +42,18 @@ struct SKELETALMESHDESTRUCTION_API FSKMDegradationConfig
 			return false;
 		}
 
-UENUM(BlueprintType)
-enum class ESKMDismembermentMode : uint8
-{
-	Sequence,
-	Random
+		bool bValid = true;
+		for (auto Mesh : DLODMeshes)
+		{
+			if (!IsValid(Mesh))
+			{
+				bValid = false;
+				break;
+			}
+		}
+
+		return bValid;
+	}
 };
 
 USTRUCT(BlueprintType)
@@ -57,8 +64,36 @@ struct SKELETALMESHDESTRUCTION_API FSKMDismembermentConfig
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dismemberment")
 	TArray<TObjectPtr<UStaticMesh>> DismembermentMeshes;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dismemberment")
-	ESKMDismembermentMode DismembermentMode = ESKMDismembermentMode::Sequence;
+	bool Valid() const
+	{
+		if (DismembermentMeshes.Num() <= 0)
+		{
+			return false;
+		}
+
+		bool bValid = true;
+		for (auto Mesh : DismembermentMeshes)
+		{
+			if (!IsValid(Mesh))
+			{
+				bValid = false;
+				break;
+			}
+		}
+
+		return bValid;
+	}
+
+	UStaticMesh* GetRandomDismembermentMesh() const
+	{
+		if (DismembermentMeshes.Num() <= 0)
+		{
+			return nullptr;
+		}
+
+		const int32 RandomIndex = FMath::RandRange(0, DismembermentMeshes.Num() - 1);
+		return DismembermentMeshes[RandomIndex];
+	}
 };
 
 /**
@@ -82,6 +117,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction|Dismemberment",
 		meta = (EditCondition = "bUseDismemberment", EditConditionHides))
 	TMap<FName, FSKMDismembermentConfig> DismembermentConfigs;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction|Dismemberment",
+		meta = (EditCondition = "bUseDismemberment", EditConditionHides))
+	FCollisionProfileName DismembermentLimbCollisionProfile = FCollisionProfileName(TEXT("DismembermentLimb"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction")
 	bool bUseDegradation = false;

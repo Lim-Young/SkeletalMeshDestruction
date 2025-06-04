@@ -25,20 +25,22 @@ struct SKELETALMESHDESTRUCTION_API FSKMDegradationConfig
 {
 	GENERATED_BODY()
 
+	/**
+	 * Degradation Level of Detail (LOD) meshes.
+	 * DLOD0 is the original mesh, DLOD1 is the first degradation mesh, and so on.
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Degradation")
-	TObjectPtr<USkeletalMesh> OriginalMesh = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Degradation")
-	TArray<TObjectPtr<USkeletalMesh>> DegradationMeshes;
+	TArray<TObjectPtr<USkeletalMesh>> DLODMeshes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Degradation")
 	ESKMDegradationMode DegradationMode = ESKMDegradationMode::Sequence;
 
-	bool IsValid() const
+	bool Valid() const
 	{
-		return OriginalMesh != nullptr;
-	}
-};
+		if (DLODMeshes.Num() <= 0)
+		{
+			return false;
+		}
 
 UENUM(BlueprintType)
 enum class ESKMDismembermentMode : uint8

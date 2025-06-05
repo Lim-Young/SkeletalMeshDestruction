@@ -5,16 +5,12 @@
 
 #include "DismembermentLimbActor.h"
 #include "SkeletalMeshDestructionSubsystem.h"
+#include "SkeletalMergingLibrary.h"
 
 
-// Sets default values for this component's properties
 USkeletalMeshDestructionComponent::USkeletalMeshDestructionComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
-
-	// ...
 }
 
 void USkeletalMeshDestructionComponent::BeginPlay()
@@ -27,13 +23,19 @@ void USkeletalMeshDestructionComponent::BeginPlay()
 
 void USkeletalMeshDestructionComponent::InitializeSkeletalMesh()
 {
-	if (SkeletalMeshDestructionConfig.IsValid())
+	if (!IsValid(SkeletalMeshDestructionConfigData))
+	{
+		return;
+	}
+
+	if (SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.IsValid())
 	{
 		TArray<USkeletalMeshComponent*> SkeletalMeshComponents;
 		GetOwner()->GetComponents(USkeletalMeshComponent::StaticClass(), SkeletalMeshComponents);
 		for (USkeletalMeshComponent* SkeletalMeshComponent : SkeletalMeshComponents)
 		{
-			if (SkeletalMeshComponent->GetName() == SkeletalMeshDestructionConfig.SkeletalMeshCombineName)
+			if (SkeletalMeshComponent->GetName() == SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.
+				SkeletalMeshCombineName)
 			{
 				DrivenSkeletalMeshComponent = SkeletalMeshComponent;
 				break;
@@ -57,12 +59,12 @@ bool USkeletalMeshDestructionComponent::CheckShouldUseDegradationSystem() const
 		return false;
 	}
 
-	if (!SkeletalMeshDestructionConfig.IsValid())
+	if (!SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.IsValid())
 	{
 		return false;
 	}
 
-	if (!SkeletalMeshDestructionConfig.bUseDegradation)
+	if (!SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.bUseDLOD)
 	{
 		return false;
 	}
@@ -71,12 +73,12 @@ bool USkeletalMeshDestructionComponent::CheckShouldUseDegradationSystem() const
 
 bool USkeletalMeshDestructionComponent::CheckBoneDLODConfigValid(const FName& BoneName) const
 {
-	if (!SkeletalMeshDestructionConfig.DegradationConfigs.Contains(BoneName))
+	if (!SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.DegradationConfigs.Contains(BoneName))
 	{
 		return false;
 	}
 
-	if (!SkeletalMeshDestructionConfig.DegradationConfigs[BoneName].Valid())
+	if (!SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.DegradationConfigs[BoneName].Valid())
 	{
 		return false;
 	}
@@ -84,7 +86,7 @@ bool USkeletalMeshDestructionComponent::CheckBoneDLODConfigValid(const FName& Bo
 	return true;
 }
 
-bool USkeletalMeshDestructionComponent::CheckBoneDLODLevelValid(const FName& BoneName, const uint8 DLODLevel)
+bool USkeletalMeshDestructionComponent::CheckBoneDLODLevelValid(const FName& BoneName, const uint8 DLODLevel) const
 {
 	if (!CurrentDLODLevels.Contains(BoneName))
 	{
@@ -92,7 +94,8 @@ bool USkeletalMeshDestructionComponent::CheckBoneDLODLevelValid(const FName& Bon
 	}
 
 	// DLOD level must be within the valid range
-	if (!SkeletalMeshDestructionConfig.DegradationConfigs[BoneName].DLODMeshes.IsValidIndex(DLODLevel))
+	if (!SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.DegradationConfigs[BoneName].DLODMeshes.
+		IsValidIndex(DLODLevel))
 	{
 		return false;
 	}
@@ -101,7 +104,7 @@ bool USkeletalMeshDestructionComponent::CheckBoneDLODLevelValid(const FName& Bon
 
 void USkeletalMeshDestructionComponent::InitializeDLODLevel()
 {
-	for (auto DegradationConfig : SkeletalMeshDestructionConfig.DegradationConfigs)
+	for (auto DegradationConfig : SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.DegradationConfigs)
 	{
 		CurrentDLODLevels.FindOrAdd(DegradationConfig.Key, 0);
 	}
@@ -109,28 +112,15 @@ void USkeletalMeshDestructionComponent::InitializeDLODLevel()
 
 void USkeletalMeshDestructionComponent::CombineSkeletalMesh()
 {
-	// if (!IsValid(DrivenSkeletalMeshComponent))
-	// {
-	// 	return;
-	// }
-	//
-	// if (!SkeletalMeshDestructionConfig.IsValid())
-	// {
-	// 	return;
-	// }
-	//
-	// if (!SkeletalMeshDestructionConfig.bUseDegradation)
-	// {
-	// 	return;
-	// }
-
-	switch (SkeletalMeshDestructionConfig.SkeletonCombineType)
+	switch (SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.SkeletonCombineType)
 	{
 	case ESkeletalMeshCombineType::LeaderPose:
 		{
-			DrivenSkeletalMeshComponent->SetSkeletalMeshAsset(SkeletalMeshDestructionConfig.LeaderMesh);
+			DrivenSkeletalMeshComponent->SetSkeletalMeshAsset(
+				SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.LeaderMesh);
 
-			for (auto DegradationConfig : SkeletalMeshDestructionConfig.DegradationConfigs)
+			for (auto DegradationConfig : SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.
+			                                                                 DegradationConfigs)
 			{
 				if (DegradationConfig.Key == NAME_None)
 				{
@@ -145,7 +135,8 @@ void USkeletalMeshDestructionComponent::CombineSkeletalMesh()
 				// Create a new SkeletalMeshComponent for each degradation config
 				USkeletalMeshComponent* DegradationComponent = NewObject<USkeletalMeshComponent>(
 					GetOwner(), USkeletalMeshComponent::StaticClass(),
-					FName(SkeletalMeshDestructionConfig.SkeletalMeshCombineName.ToString() + TEXT("_") +
+					FName(SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.SkeletalMeshCombineName.
+					                                         ToString() + TEXT("_") +
 						DegradationConfig.Key.ToString()));
 
 				if (!IsValid(DegradationComponent))
@@ -165,10 +156,11 @@ void USkeletalMeshDestructionComponent::CombineSkeletalMesh()
 		{
 			FSkeletalMeshMergeParams MergeParams;
 			MergeParams.bNeedsCpuAccess = true;
-			MergeParams.Skeleton = SkeletalMeshDestructionConfig.Skeleton;
-			MergeParams.MeshesToMerge.Add(SkeletalMeshDestructionConfig.LeaderMesh);
+			MergeParams.Skeleton = SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.Skeleton;
+			MergeParams.MeshesToMerge.Add(SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.LeaderMesh);
 
-			for (auto DegradationConfig : SkeletalMeshDestructionConfig.DegradationConfigs)
+			for (auto DegradationConfig : SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.
+			                                                                 DegradationConfigs)
 			{
 				if (DegradationConfig.Key == NAME_None)
 				{
@@ -229,11 +221,14 @@ bool USkeletalMeshDestructionComponent::DegradeSkeletalMesh(const FName& BoneNam
 		return false;
 	}
 
-	switch (SkeletalMeshDestructionConfig.DegradationConfigs[BoneName].DegradationMode)
+	switch (SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.DegradationConfigs[BoneName].
+		DegradationMode)
 	{
 	case ESKMDegradationMode::Sequence:
 		CurrentDLODLevels[BoneName]++;
-		if (CurrentDLODLevels[BoneName] >= SkeletalMeshDestructionConfig.DegradationConfigs[BoneName].DLODMeshes.Num())
+		if (CurrentDLODLevels[BoneName] >= SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.
+		                                                                      DegradationConfigs[BoneName].DLODMeshes.
+			Num())
 		{
 			// Clamp the DLOD level to the maximum
 			CurrentDLODLevels[BoneName]--;
@@ -241,7 +236,8 @@ bool USkeletalMeshDestructionComponent::DegradeSkeletalMesh(const FName& BoneNam
 		}
 	case ESKMDegradationMode::Random:
 		CurrentDLODLevels[BoneName] = FMath::RandRange(
-			0, SkeletalMeshDestructionConfig.DegradationConfigs[BoneName].DLODMeshes.Num() - 1);
+			0, SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.DegradationConfigs[BoneName].DLODMeshes.
+			Num() - 1);
 		break;
 	default:
 		checkNoEntry();
@@ -257,10 +253,8 @@ bool USkeletalMeshDestructionComponent::DegradeSkeletalMesh(const FName& BoneNam
 	return true;
 }
 
-bool USkeletalMeshDestructionComponent::ApplyDismemberment(const FName& BoneName, const FVector& ImpactDirection,
-                                                           const float ImpactForce,
-                                                           const FVector& AngularImpulseDegrees,
-                                                           const ELimbSpace LimbSpace, const bool bUseWorldScale)
+bool USkeletalMeshDestructionComponent::ApplyDismemberment(const FName& BoneName,
+                                                           const FDismembermentConfig& DismembermentConfig)
 {
 	if (!IsValid(DrivenSkeletalMeshComponent))
 	{
@@ -272,17 +266,17 @@ bool USkeletalMeshDestructionComponent::ApplyDismemberment(const FName& BoneName
 		return false;
 	}
 
-	if (!SkeletalMeshDestructionConfig.bUseDismemberment)
+	if (!SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.bUseDismemberment)
 	{
 		return false;
 	}
 
-	if (!SkeletalMeshDestructionConfig.DismembermentConfigs.Contains(BoneName))
+	if (!SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.DismembermentConfigs.Contains(BoneName))
 	{
 		return false;
 	}
 
-	if (!SkeletalMeshDestructionConfig.DismembermentConfigs[BoneName].Valid())
+	if (!SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.DismembermentConfigs[BoneName].Valid())
 	{
 		return false;
 	}
@@ -292,28 +286,41 @@ bool USkeletalMeshDestructionComponent::ApplyDismemberment(const FName& BoneName
 
 	ADismembermentLimbActor* LimbActor = SkeletalMeshDestructionSubsystem->GetDismembermentLimbActor(BoneTransform);
 	FVector FinalImpactDirection;
-	switch (LimbSpace)
+	switch (DismembermentConfig.LimbSpace)
 	{
 	case ELimbSpace::WorldSpace:
-		FinalImpactDirection = ImpactDirection;
+		FinalImpactDirection = DismembermentConfig.ImpactDirection;
 		break;
 	case ELimbSpace::BoneSpace:
-		FinalImpactDirection = BoneTransform.TransformVector(ImpactDirection);
+		FinalImpactDirection = BoneTransform.TransformVector(DismembermentConfig.ImpactDirection);
 		break;
 	default:
 		checkNoEntry();
 		break;
 	}
 
-	if (bUseWorldScale)
+	if (DismembermentConfig.bUseWorldScale)
 	{
 		BoneTransform.SetScale3D(DrivenSkeletalMeshComponent->GetComponentScale());
 	}
 
 	LimbActor->ReInitializeLimb(BoneTransform,
-	                            SkeletalMeshDestructionConfig.DismembermentConfigs[BoneName].
+	                            SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.DismembermentConfigs[
+		                            BoneName].
 	                            GetRandomDismembermentMesh(),
-	                            SkeletalMeshDestructionConfig.DismembermentLimbCollisionProfile.Name);
-	LimbActor->AddImpulse(FinalImpactDirection, ImpactForce, AngularImpulseDegrees);
+	                            SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.
+	                                                               DismembermentLimbCollisionProfile.Name);
+	LimbActor->AddImpulse(FinalImpactDirection, DismembermentConfig.ImpactForce,
+	                      DismembermentConfig.AngularImpulseDegrees);
 	return true;
+}
+
+bool USkeletalMeshDestructionComponent::IsUseDLOD() const
+{
+	return SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.bUseDLOD;
+}
+
+bool USkeletalMeshDestructionComponent::IsUseDismemberment() const
+{
+	return SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.bUseDismemberment;
 }

@@ -15,6 +15,27 @@ enum class ELimbSpace : uint8
 	BoneSpace
 };
 
+USTRUCT(BlueprintType)
+struct FDismembermentConfig
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Dismemberment")
+	FVector ImpactDirection;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Dismemberment")
+	float ImpactForce;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Dismemberment")
+	FVector AngularImpulseDegrees;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Dismemberment")
+	ELimbSpace LimbSpace = ELimbSpace::BoneSpace;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Dismemberment")
+	bool bUseWorldScale = true;
+};
+
 UCLASS(ClassGroup=(SkeletalMeshDestruction), meta=(BlueprintSpawnableComponent))
 class SKELETALMESHDESTRUCTION_API USkeletalMeshDestructionComponent : public UActorComponent
 {
@@ -30,7 +51,7 @@ public:
 protected:
 	bool CheckShouldUseDegradationSystem() const;
 	bool CheckBoneDLODConfigValid(const FName& BoneName) const;
-	bool CheckBoneDLODLevelValid(const FName& BoneName, uint8 DLODLevel);
+	bool CheckBoneDLODLevelValid(const FName& BoneName, uint8 DLODLevel) const;
 
 	void InitializeDLODLevel();
 	void CombineSkeletalMesh();
@@ -45,8 +66,9 @@ private:
 	TObjectPtr<USkeletalMeshDestructionSubsystem> SkeletalMeshDestructionSubsystem;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SkeletalMeshDestruction")
-	FSkeletalMeshDestructionConfig SkeletalMeshDestructionConfig;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SkeletalMeshDestruction",
+		DisplayName = "SKM Destruction Config Data")
+	TObjectPtr<USkeletalMeshDestructionConfigData> SkeletalMeshDestructionConfigData;
 
 public:
 	UFUNCTION(BlueprintCallable, Category="SkeletalMeshDestruction|DLOD", meta = (AutoCreateRefTerm = "BoneName"))
@@ -56,8 +78,13 @@ public:
 	bool DegradeSkeletalMesh(const FName& BoneName);
 
 	UFUNCTION(BlueprintCallable, Category="SkeletalMeshDestruction|Dismemberment",
-		meta = (AutoCreateRefTerm = "BoneName, ImpactDirection, AngularImpulseDegrees"))
-	bool ApplyDismemberment(const FName& BoneName, const FVector& ImpactDirection, const float ImpactForce,
-	                        const FVector& AngularImpulseDegrees, const ELimbSpace LimbSpace = ELimbSpace::BoneSpace,
-	                        const bool bUseWorldScale = true);
+		meta = (AutoCreateRefTerm = "BoneName, DismembermentConfig"))
+	bool ApplyDismemberment(const FName& BoneName, const FDismembermentConfig& DismembermentConfig);
+
+public:
+	UFUNCTION(BlueprintPure, Category="SkeletalMeshDestruction|DLOD")
+	bool IsUseDLOD() const;
+
+	UFUNCTION(BlueprintPure, Category="SkeletalMeshDestruction|Dismemberment")
+	bool IsUseDismemberment() const;
 };

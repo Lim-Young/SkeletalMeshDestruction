@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SkeletalMergingLibrary.h"
 #include "SkeletalMeshDestructionConfig.generated.h"
 
 UENUM(BlueprintType)
@@ -104,10 +103,6 @@ struct SKELETALMESHDESTRUCTION_API FSkeletalMeshDestructionConfig
 {
 	GENERATED_BODY()
 
-private:
-	FSkeletalMeshMergeParams MergeParams;
-
-public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction")
 	FName SkeletalMeshCombineName = FName("CharacterMesh0");
 
@@ -123,30 +118,40 @@ public:
 	FCollisionProfileName DismembermentLimbCollisionProfile = FCollisionProfileName(TEXT("DismembermentLimb"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction")
-	bool bUseDegradation = false;
+	bool bUseDLOD = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction|Degradation",
-		meta = (EditCondition = "bUseDegradation", EditConditionHides))
-	ESkeletalMeshCombineType SkeletonCombineType = ESkeletalMeshCombineType::LeaderPose;
+		meta = (EditCondition = "bUseDLOD", EditConditionHides))
+	ESkeletalMeshCombineType SkeletonCombineType = ESkeletalMeshCombineType::MeshMerge;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction|Degradation",
-		meta = (EditCondition = "bUseDegradation", EditConditionHides))
+		meta = (EditCondition = "bUseDLOD", EditConditionHides))
 	TObjectPtr<USkeleton> Skeleton = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction|Degradation",
-		meta = (EditCondition = "bUseDegradation", EditConditionHides))
+		meta = (EditCondition = "bUseDLOD", EditConditionHides))
 	TObjectPtr<USkeletalMesh> LeaderMesh = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction|Degradation",
-		meta = (EditCondition = "bUseDegradation", EditConditionHides))
+		meta = (EditCondition = "bUseDLOD", EditConditionHides))
 	TMap<FName, FSKMDegradationConfig> DegradationConfigs;
 
 	bool IsValid() const
 	{
-		if (bUseDegradation)
+		if (bUseDLOD)
 		{
 			return Skeleton != nullptr && LeaderMesh != nullptr;
 		}
 		return true;
 	}
+};
+
+UCLASS(BlueprintType)
+class SKELETALMESHDESTRUCTION_API USkeletalMeshDestructionConfigData : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction")
+	FSkeletalMeshDestructionConfig SkeletalMeshDestructionConfig;
 };

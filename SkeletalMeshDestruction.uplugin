@@ -18,6 +18,11 @@
 			"Name": "SkeletalMeshDestruction",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "SkeletalMeshDestructionEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [

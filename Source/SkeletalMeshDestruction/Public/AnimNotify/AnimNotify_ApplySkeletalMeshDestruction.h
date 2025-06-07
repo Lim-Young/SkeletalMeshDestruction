@@ -15,6 +15,8 @@ class SKELETALMESHDESTRUCTION_API UAnimNotify_ApplySkeletalMeshDestruction : pub
 {
 	GENERATED_BODY()
 
+	UAnimNotify_ApplySkeletalMeshDestruction();
+
 protected:
 	UPROPERTY(EditAnywhere, Category = "Skeletal Mesh Destruction|DLOD")
 	bool bApplyDLOD = false;
@@ -33,4 +35,9 @@ protected:
 public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 	                    const FAnimNotifyEventReference& EventReference) override;
+
+#if WITH_EDITOR
+	virtual EDataValidationResult IsDataValid(FDataValidationContext& Context) const override;
+	virtual FString GetNotifyName_Implementation() const override;
+#endif
 };

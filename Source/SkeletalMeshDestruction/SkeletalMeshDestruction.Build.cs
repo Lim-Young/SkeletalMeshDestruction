@@ -37,7 +37,8 @@ public class SkeletalMeshDestruction : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				"SkeletalMerging"
+				"SkeletalMerging",
+				"DeveloperSettings"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

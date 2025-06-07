@@ -34,8 +34,7 @@ void USkeletalMeshDestructionComponent::InitializeSkeletalMesh()
 		GetOwner()->GetComponents(USkeletalMeshComponent::StaticClass(), SkeletalMeshComponents);
 		for (USkeletalMeshComponent* SkeletalMeshComponent : SkeletalMeshComponents)
 		{
-			if (SkeletalMeshComponent->GetName() == SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.
-				SkeletalMeshCombineName)
+			if (SkeletalMeshComponent->GetName() == DrivenSkeletalMeshComponentName)
 			{
 				DrivenSkeletalMeshComponent = SkeletalMeshComponent;
 				break;
@@ -135,9 +134,7 @@ void USkeletalMeshDestructionComponent::CombineSkeletalMesh()
 				// Create a new SkeletalMeshComponent for each degradation config
 				USkeletalMeshComponent* DegradationComponent = NewObject<USkeletalMeshComponent>(
 					GetOwner(), USkeletalMeshComponent::StaticClass(),
-					FName(SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.SkeletalMeshCombineName.
-					                                         ToString() + TEXT("_") +
-						DegradationConfig.Key.ToString()));
+					FName(DrivenSkeletalMeshComponentName.ToString() + TEXT("_") + DegradationConfig.Key.ToString()));
 
 				if (!IsValid(DegradationComponent))
 				{

@@ -66,6 +66,9 @@ private:
 	TObjectPtr<USkeletalMeshDestructionSubsystem> SkeletalMeshDestructionSubsystem;
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction")
+	FName DrivenSkeletalMeshComponentName = FName("CharacterMesh0");
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SkeletalMeshDestruction",
 		DisplayName = "SKM Destruction Config Data")
 	TObjectPtr<USkeletalMeshDestructionConfigData> SkeletalMeshDestructionConfigData;

@@ -104,9 +104,6 @@ struct SKELETALMESHDESTRUCTION_API FSkeletalMeshDestructionConfig
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction")
-	FName SkeletalMeshCombineName = FName("CharacterMesh0");
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction")
 	bool bUseDismemberment = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction|Dismemberment",

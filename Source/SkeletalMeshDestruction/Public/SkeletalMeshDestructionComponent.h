@@ -67,6 +67,9 @@ private:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction")
+	bool bAutoInitialize = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction")
 	FName DrivenSkeletalMeshComponentName = FName("CharacterMesh0");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SkeletalMeshDestruction",

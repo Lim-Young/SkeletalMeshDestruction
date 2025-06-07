@@ -19,6 +19,11 @@ void USkeletalMeshDestructionComponent::BeginPlay()
 
 	SkeletalMeshDestructionSubsystem = GetWorld()->GetSubsystem<USkeletalMeshDestructionSubsystem>();
 	check(SkeletalMeshDestructionSubsystem);
+
+	if (bAutoInitialize)
+	{
+		InitializeSkeletalMesh();
+	}
 }
 
 void USkeletalMeshDestructionComponent::InitializeSkeletalMesh()

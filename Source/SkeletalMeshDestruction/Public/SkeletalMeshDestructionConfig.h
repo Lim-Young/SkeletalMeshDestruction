@@ -131,6 +131,10 @@ struct SKELETALMESHDESTRUCTION_API FSkeletalMeshDestructionConfig
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction|Degradation",
 		meta = (EditCondition = "bUseDLOD", EditConditionHides))
+	TObjectPtr<UPhysicsAsset> PhysicsAsset = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshDestruction|Degradation",
+		meta = (EditCondition = "bUseDLOD", EditConditionHides))
 	TMap<FName, FSKMDegradationConfig> DegradationConfigs;
 
 	bool IsValid() const

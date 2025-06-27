@@ -6,6 +6,7 @@
 #include "DismembermentLimbActor.h"
 #include "SkeletalMeshDestructionSubsystem.h"
 #include "SkeletalMergingLibrary.h"
+#include "PhysicsEngine/PhysicsAsset.h"
 
 
 USkeletalMeshDestructionComponent::USkeletalMeshDestructionComponent()
@@ -180,6 +181,12 @@ void USkeletalMeshDestructionComponent::CombineSkeletalMesh()
 
 			const TObjectPtr<USkeletalMesh> CombinedSkeletalMesh = USkeletalMergingLibrary::MergeMeshes(MergeParams);
 			DrivenSkeletalMeshComponent->SetSkeletalMeshAsset(CombinedSkeletalMesh);
+
+			if (IsValid(SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.PhysicsAsset))
+			{
+				DrivenSkeletalMeshComponent->SetPhysicsAsset(
+					SkeletalMeshDestructionConfigData->SkeletalMeshDestructionConfig.PhysicsAsset);
+			}
 			break;
 		}
 	default:

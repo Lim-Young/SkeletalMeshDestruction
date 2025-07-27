@@ -4,7 +4,7 @@
 # SkeletalMeshDestruction
 > Language: [English](README.md), [中文](README-CN.md)
 > 
-A skeletal mesh damage and dismemberment system for Unreal Engine, enabling easy implementation of damage and dismemberment effects for characters during combat.
+A skeletal mesh degradation and dismemberment system for Unreal Engine, enabling easy implementation of damage and dismemberment effects for characters during combat.
 
 ## Introduction
 This solution primarily provides two types of skeletal mesh destruction effects:

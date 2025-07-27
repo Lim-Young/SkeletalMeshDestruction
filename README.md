@@ -1,4 +1,9 @@
+![GitHub License](https://img.shields.io/github/license/Lim-Young/SkeletalMeshDestruction)
+![Unreal Engine](https://img.shields.io/badge/Unreal-5.6-dea309?style=flat&logo=unrealengine)
+
 # SkeletalMeshDestruction
+> Language: [English](README.md), [中文](README-CN.md)
+> 
 A skeletal mesh damage and dismemberment system for Unreal Engine, enabling easy implementation of damage and dismemberment effects for characters during combat.
 
 ## Introduction

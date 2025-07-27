@@ -1,4 +1,9 @@
+![GitHub License](https://img.shields.io/github/license/Lim-Young/SkeletalMeshDestruction)
+![Unreal Engine](https://img.shields.io/badge/Unreal-5.6-dea309?style=flat&logo=unrealengine)
+
 # SkeletalMeshDestruction
+> Language: [English](README.md), [中文](README-CN.md)
+> 
 虚幻引擎中的骨骼网格体战损与肢解系统，可轻松实现角色在战斗中的受损效果和肢解效果。
 
 ## 简介

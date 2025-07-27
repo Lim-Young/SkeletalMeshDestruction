@@ -77,7 +77,8 @@ public:
 	TObjectPtr<USkeletalMeshDestructionConfigData> SkeletalMeshDestructionConfigData;
 
 public:
-	UFUNCTION(BlueprintCallable, Category="SkeletalMeshDestruction|DLOD", meta = (AutoCreateRefTerm = "BoneName"))
+	UFUNCTION(BlueprintCallable, Category="SkeletalMeshDestruction|DLOD", DisplayName="Set DLOD By Bone Name",
+		meta = (AutoCreateRefTerm = "BoneName"))
 	bool SetDLODByBoneName(const FName& BoneName, const uint8 DLODLevel);
 
 	UFUNCTION(BlueprintCallable, Category="SkeletalMeshDestruction|DLOD", meta = (AutoCreateRefTerm = "BoneName"))
